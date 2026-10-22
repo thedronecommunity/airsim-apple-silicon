@@ -1,0 +1,25 @@
+name: checks
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  lint:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Shell scripts
+        run: |
+          brew install shellcheck
+          shellcheck scripts/*.sh
+
+      - name: Python example
+        run: python3 -m py_compile examples/hello_airsim.py
+
+      - name: Settings files are valid JSON
+        run: for f in settings/*.json; do python3 -m json.tool "$f" > /dev/null && echo "ok $f"; done
+
+      - name: Environment checker runs
+        run: bash scripts/check_mac_env.sh || true
